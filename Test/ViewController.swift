@@ -10,15 +10,16 @@ import UIKit
 
 class ViewController: UIViewController {
 
+    typealias Factory = ConverterFactory<Data, User>
 	var f: Factory!
-	func addFactory(f: Factory) {
+    func addFactory(f: @escaping Factory) {
 		self.f = f
 	}
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
 
-		self.addFactory(f: CodableConverterFactory.create())
+		self.addFactory(f: makeCodableConverterFactory())
 		let json = """
 		{"name": "Ahmad", "age":"11"}
 		"""
@@ -26,10 +27,10 @@ class ViewController: UIViewController {
 		
 		////
 		
-		let result: Converter<Data, User>? = self.f.responseBodyConverter()
+		let result: Converter<Data, User>? = self.f()
 		do {
-		let user = try result?.convert(value: json.data(using: .utf8)!)
-			print(user)
+		let user = try result?(json.data(using: .utf8)!)
+			dump(user)
 
 		} catch {
 			print(error)
